@@ -1,12 +1,37 @@
-import React, { useContext } from 'react';
+import React, { useState } from 'react';
 
-import {YelpContext} from '../../context/YelpContextProvider';
-
-
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { setAuth } from '../../redux/actions/authActions';
 
 function Registration() {
+  const [inputsReg, setInputsReg] = useState({ name: '', email: '', password: '' });
 
-  const {inputsReg, submitHandlerReg, changeHandlerReg} = useContext(YelpContext);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const changeHandlerReg = (e) => {
+    setInputsReg((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+  const submitHandlerReg = async (e) => {
+    e.preventDefault();
+    const response = await fetch('http://localhost:3002/auth', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(inputsReg),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      dispatch(setAuth(data));
+      navigate('/');
+    }
+  };
 
   return (
     <div>

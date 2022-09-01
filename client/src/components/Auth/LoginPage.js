@@ -1,8 +1,47 @@
-import React, { useContext } from 'react';
-import {YelpContext} from '../../context/YelpContextProvider';
+import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { setAuth } from '../../redux/actions/authActions';
 
 function Login() {
-  const {inputs, changeHandler, submitHandler} = useContext(YelpContext);
+  const [inputs, setInputs] = useState({ email: '', password: '' });
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const changeHandler = (e) => {
+    setInputs((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+  // useEffect(() => {
+  //   fetch('http://localhost:3002/auth', {
+  //     credentials: 'include',
+  //   })
+  //     .then((res) => res.json())
+  //     .then((res) => {
+  //       dispatch(setAuth(res));
+  //     });
+  // }, []);
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    const response = await fetch('http://localhost:3002/auth', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(inputs),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+      dispatch(setAuth(data));
+      navigate('/');
+    }
+  };
 
   return (
     <div>
